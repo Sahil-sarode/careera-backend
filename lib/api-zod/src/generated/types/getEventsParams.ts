@@ -5,7 +5,8 @@
  * Careera API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { GetEventsFilter } from "./getEventsFilter";
 
-export interface HealthStatus {
-  status: string;
-}
+export type GetEventsParams = {
+  filter?: GetEventsFilter;
+};
