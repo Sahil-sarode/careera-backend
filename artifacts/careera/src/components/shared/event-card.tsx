@@ -9,9 +9,10 @@ import { Link } from "wouter";
 interface EventCardProps {
   event: Event;
   showStatus?: boolean;
+  showRegisteredBadge?: boolean;
 }
 
-export function EventCard({ event, showStatus = true }: EventCardProps) {
+export function EventCard({ event, showStatus = true, showRegisteredBadge = false }: EventCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming": return "bg-emerald-500/15 text-emerald-700 border-emerald-500/30";
@@ -30,11 +31,18 @@ export function EventCard({ event, showStatus = true }: EventCardProps) {
           <h3 className="font-display font-bold text-xl text-foreground line-clamp-2">
             {event.name}
           </h3>
-          {showStatus && (
-            <Badge variant="outline" className={`whitespace-nowrap capitalize ${getStatusColor(event.status)}`}>
-              {event.status.replace("_", " ")}
-            </Badge>
-          )}
+          <div className="flex flex-col gap-1 items-end shrink-0">
+            {showStatus && (
+              <Badge variant="outline" className={`whitespace-nowrap capitalize ${getStatusColor(event.status)}`}>
+                {event.status.replace("_", " ")}
+              </Badge>
+            )}
+            {showRegisteredBadge && (
+              <Badge variant="outline" className="whitespace-nowrap bg-emerald-50 text-emerald-700 border-emerald-200">
+                ✓ Registered
+              </Badge>
+            )}
+          </div>
         </div>
 
         <div className="space-y-3 mb-6 flex-1 text-sm text-muted-foreground">
