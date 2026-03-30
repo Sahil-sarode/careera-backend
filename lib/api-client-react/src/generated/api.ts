@@ -27,6 +27,7 @@ import type {
   CurrentUser,
   ErrorResponse,
   Event,
+  EventRegistrant,
   GetEventsParams,
   HealthStatus,
   LoginRequest,
@@ -1199,6 +1200,94 @@ export const useDeleteEvent = <
 };
 
 /**
+ * @summary Get registrations for an event (organizer only)
+ */
+export const getGetEventRegistrationsUrl = (id: number) => {
+  return `/api/events/${id}/registrations`;
+};
+
+export const getEventRegistrations = async (
+  id: number,
+  options?: RequestInit,
+): Promise<EventRegistrant[]> => {
+  return customFetch<EventRegistrant[]>(getGetEventRegistrationsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetEventRegistrationsQueryKey = (id: number) => {
+  return [`/api/events/${id}/registrations`] as const;
+};
+
+export const getGetEventRegistrationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getEventRegistrations>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getEventRegistrations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetEventRegistrationsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getEventRegistrations>>
+  > = ({ signal }) => getEventRegistrations(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getEventRegistrations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetEventRegistrationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getEventRegistrations>>
+>;
+export type GetEventRegistrationsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get registrations for an event (organizer only)
+ */
+
+export function useGetEventRegistrations<
+  TData = Awaited<ReturnType<typeof getEventRegistrations>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getEventRegistrations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetEventRegistrationsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Register for an event
  */
 export const getRegisterForEventUrl = (id: number) => {
@@ -1838,6 +1927,156 @@ export function useAdminGetEvents<
 }
 
 /**
+ * @summary Get all announcements
+ */
+export const getGetAnnouncementsUrl = () => {
+  return `/api/announcements`;
+};
+
+export const getAnnouncements = async (
+  options?: RequestInit,
+): Promise<Announcement[]> => {
+  return customFetch<Announcement[]>(getGetAnnouncementsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAnnouncementsQueryKey = () => {
+  return [`/api/announcements`] as const;
+};
+
+export const getGetAnnouncementsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAnnouncementsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnouncements>>
+  > = ({ signal }) => getAnnouncements({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnouncements>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnouncementsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnouncements>>
+>;
+export type GetAnnouncementsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get all announcements
+ */
+
+export function useGetAnnouncements<
+  TData = Awaited<ReturnType<typeof getAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnouncementsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get all announcements (admin)
+ */
+export const getAdminGetAnnouncementsUrl = () => {
+  return `/api/admin/announcements`;
+};
+
+export const adminGetAnnouncements = async (
+  options?: RequestInit,
+): Promise<Announcement[]> => {
+  return customFetch<Announcement[]>(getAdminGetAnnouncementsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getAdminGetAnnouncementsQueryKey = () => {
+  return [`/api/admin/announcements`] as const;
+};
+
+export const getAdminGetAnnouncementsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetAnnouncementsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof adminGetAnnouncements>>
+  > = ({ signal }) => adminGetAnnouncements({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetAnnouncements>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type AdminGetAnnouncementsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminGetAnnouncements>>
+>;
+export type AdminGetAnnouncementsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get all announcements (admin)
+ */
+
+export function useAdminGetAnnouncements<
+  TData = Awaited<ReturnType<typeof adminGetAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminGetAnnouncementsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Create platform-wide announcement
  */
 export const getAdminCreateAnnouncementUrl = () => {
@@ -1922,6 +2161,90 @@ export const useAdminCreateAnnouncement = <
   TContext
 > => {
   return useMutation(getAdminCreateAnnouncementMutationOptions(options));
+};
+
+/**
+ * @summary Delete an announcement
+ */
+export const getAdminDeleteAnnouncementUrl = (id: number) => {
+  return `/api/admin/announcements/${id}`;
+};
+
+export const adminDeleteAnnouncement = async (
+  id: number,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getAdminDeleteAnnouncementUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getAdminDeleteAnnouncementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteAnnouncement>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminDeleteAnnouncement>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["adminDeleteAnnouncement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDeleteAnnouncement>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return adminDeleteAnnouncement(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminDeleteAnnouncementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminDeleteAnnouncement>>
+>;
+
+export type AdminDeleteAnnouncementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an announcement
+ */
+export const useAdminDeleteAnnouncement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteAnnouncement>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminDeleteAnnouncement>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getAdminDeleteAnnouncementMutationOptions(options));
 };
 
 /**

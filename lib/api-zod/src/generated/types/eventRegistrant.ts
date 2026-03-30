@@ -6,10 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface Announcement {
+export interface EventRegistrant {
   id: number;
-  title: string;
-  message: string;
-  targetRole?: string;
-  createdAt: Date;
+  userId: number;
+  fullName: string;
+  email: string;
+  collegeName?: string;
+  registeredAt: Date;
 }

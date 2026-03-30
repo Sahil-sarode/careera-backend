@@ -5,8 +5,10 @@
  * Careera API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CreateAnnouncementRequestTargetRole } from "./createAnnouncementRequestTargetRole";
 
 export interface CreateAnnouncementRequest {
   title: string;
   message: string;
+  targetRole?: CreateAnnouncementRequestTargetRole;
 }

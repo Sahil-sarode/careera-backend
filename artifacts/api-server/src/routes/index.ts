@@ -7,6 +7,7 @@ import organizersRouter from "./organizers.js";
 import notificationsRouter from "./notifications.js";
 import adminRouter from "./admin.js";
 import referralsRouter from "./referrals.js";
+import announcementsRouter from "./announcements.js";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use("/organizers", organizersRouter);
 router.use("/notifications", notificationsRouter);
 router.use("/admin", adminRouter);
 router.use("/referrals", referralsRouter);
+router.use("/announcements", announcementsRouter);
 
 export default router;

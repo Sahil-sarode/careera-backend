@@ -275,6 +275,25 @@ export const DeleteEventResponse = zod.object({
 });
 
 /**
+ * @summary Get registrations for an event (organizer only)
+ */
+export const GetEventRegistrationsParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetEventRegistrationsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  fullName: zod.string(),
+  email: zod.string(),
+  collegeName: zod.string().optional(),
+  registeredAt: zod.coerce.date(),
+});
+export const GetEventRegistrationsResponse = zod.array(
+  GetEventRegistrationsResponseItem,
+);
+
+/**
  * @summary Register for an event
  */
 export const RegisterForEventParams = zod.object({
@@ -313,6 +332,7 @@ export const GetOrganizerEventsResponse = zod.array(
 export const CreateAnnouncementBody = zod.object({
   title: zod.string(),
   message: zod.string(),
+  targetRole: zod.enum(["all", "user", "organizer"]).optional(),
 });
 
 /**
@@ -395,10 +415,48 @@ export const AdminGetEventsResponseItem = zod.object({
 export const AdminGetEventsResponse = zod.array(AdminGetEventsResponseItem);
 
 /**
+ * @summary Get all announcements
+ */
+export const GetAnnouncementsResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  targetRole: zod.string().optional(),
+  createdAt: zod.coerce.date(),
+});
+export const GetAnnouncementsResponse = zod.array(GetAnnouncementsResponseItem);
+
+/**
+ * @summary Get all announcements (admin)
+ */
+export const AdminGetAnnouncementsResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  targetRole: zod.string().optional(),
+  createdAt: zod.coerce.date(),
+});
+export const AdminGetAnnouncementsResponse = zod.array(
+  AdminGetAnnouncementsResponseItem,
+);
+
+/**
  * @summary Create platform-wide announcement
  */
 export const AdminCreateAnnouncementBody = zod.object({
   title: zod.string(),
+  message: zod.string(),
+  targetRole: zod.enum(["all", "user", "organizer"]).optional(),
+});
+
+/**
+ * @summary Delete an announcement
+ */
+export const AdminDeleteAnnouncementParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDeleteAnnouncementResponse = zod.object({
   message: zod.string(),
 });
 

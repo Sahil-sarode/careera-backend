@@ -62,6 +62,7 @@ export const announcementsTable = pgTable("announcements", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   message: text("message").notNull(),
+  targetRole: text("target_role").default("all").notNull(),
   createdById: integer("created_by_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

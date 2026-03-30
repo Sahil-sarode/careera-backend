@@ -190,6 +190,34 @@ router.delete("/:id", requireRole("organizer"), async (req, res) => {
   }
 });
 
+// GET /api/events/:id/registrations (organizer view)
+router.get("/:id/registrations", requireRole("organizer"), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const userId = req.session.userId!;
+    const [event] = await db.select().from(eventsTable).where(eq(eventsTable.id, id));
+    if (!event) { res.status(404).json({ error: "Event not found" }); return; }
+    if (event.organizerId !== userId) { res.status(403).json({ error: "Forbidden" }); return; }
+
+    const regs = await db.select().from(registrationsTable).where(eq(registrationsTable.eventId, id));
+    const result = await Promise.all(regs.map(async (reg) => {
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, reg.userId));
+      return {
+        id: reg.id,
+        userId: reg.userId,
+        fullName: user?.fullName ?? "Unknown",
+        email: user?.email ?? "",
+        collegeName: user?.collegeName ?? "",
+        registeredAt: reg.registeredAt,
+      };
+    }));
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Get event registrations error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // POST /api/events/:id/register
 router.post("/:id/register", requireRole("user"), async (req, res) => {
   try {

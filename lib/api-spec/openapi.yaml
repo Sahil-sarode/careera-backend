@@ -297,6 +297,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
 
+  /events/{id}/registrations:
+    get:
+      operationId: getEventRegistrations
+      tags: [registrations]
+      summary: Get registrations for an event (organizer only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventRegistrant"
+
   /events/{id}/register:
     post:
       operationId: registerForEvent
@@ -439,7 +460,35 @@ paths:
                 items:
                   $ref: "#/components/schemas/Event"
 
+  /announcements:
+    get:
+      operationId: getAnnouncements
+      tags: [announcements]
+      summary: Get all announcements
+      responses:
+        "200":
+          description: Announcements list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+
   /admin/announcements:
+    get:
+      operationId: adminGetAnnouncements
+      tags: [admin]
+      summary: Get all announcements (admin)
+      responses:
+        "200":
+          description: All announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
     post:
       operationId: adminCreateAnnouncement
       tags: [admin]
@@ -457,6 +506,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Announcement"
+
+  /admin/announcements/{id}:
+    delete:
+      operationId: adminDeleteAnnouncement
+      tags: [admin]
+      summary: Delete an announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Announcement deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
 
   /admin/stats:
     get:
@@ -823,6 +891,29 @@ components:
         - isRead
         - createdAt
 
+    EventRegistrant:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        collegeName:
+          type: string
+        registeredAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - fullName
+        - email
+        - registeredAt
+
     Announcement:
       type: object
       properties:
@@ -831,6 +922,8 @@ components:
         title:
           type: string
         message:
+          type: string
+        targetRole:
           type: string
         createdAt:
           type: string
@@ -848,6 +941,9 @@ components:
           type: string
         message:
           type: string
+        targetRole:
+          type: string
+          enum: [all, user, organizer]
       required:
         - title
         - message

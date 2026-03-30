@@ -164,16 +164,36 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface EventRegistrant {
+  id: number;
+  userId: number;
+  fullName: string;
+  email: string;
+  collegeName?: string;
+  registeredAt: string;
+}
+
 export interface Announcement {
   id: number;
   title: string;
   message: string;
+  targetRole?: string;
   createdAt: string;
 }
+
+export type CreateAnnouncementRequestTargetRole =
+  (typeof CreateAnnouncementRequestTargetRole)[keyof typeof CreateAnnouncementRequestTargetRole];
+
+export const CreateAnnouncementRequestTargetRole = {
+  all: "all",
+  user: "user",
+  organizer: "organizer",
+} as const;
 
 export interface CreateAnnouncementRequest {
   title: string;
   message: string;
+  targetRole?: CreateAnnouncementRequestTargetRole;
 }
 
 export interface AdminUser {

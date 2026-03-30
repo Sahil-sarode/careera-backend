@@ -107,11 +107,34 @@ router.get("/events", requireRole("admin"), async (req, res) => {
   }
 });
 
+// GET /api/admin/announcements
+router.get("/announcements", requireRole("admin"), async (req, res) => {
+  try {
+    const all = await db.select().from(announcementsTable).orderBy(desc(announcementsTable.createdAt));
+    res.json(all);
+  } catch (err) {
+    req.log.error({ err }, "Admin get announcements error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// DELETE /api/admin/announcements/:id
+router.delete("/announcements/:id", requireRole("admin"), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await db.delete(announcementsTable).where(eq(announcementsTable.id, id));
+    res.json({ message: "Announcement deleted" });
+  } catch (err) {
+    req.log.error({ err }, "Admin delete announcement error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // POST /api/admin/announcements
 router.post("/announcements", requireRole("admin"), async (req, res) => {
   try {
     const userId = req.session.userId!;
-    const { title, message } = req.body;
+    const { title, message, targetRole } = req.body;
 
     if (!title || !message) {
       res.status(400).json({ error: "Title and message required" });
@@ -121,6 +144,7 @@ router.post("/announcements", requireRole("admin"), async (req, res) => {
     const [announcement] = await db.insert(announcementsTable).values({
       title,
       message,
+      targetRole: targetRole || "all",
       createdById: userId,
     }).returning();
 
