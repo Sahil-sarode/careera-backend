@@ -1,7 +1,9 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Trophy, Zap, Users, Target, Star } from "lucide-react";
+import { Trophy, Zap, Users, Target, Star, Calendar, MapPin, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useGetPublicEvents } from "@workspace/api-client-react";
+import { format } from "date-fns";
 
 export default function Landing() {
   return (
@@ -15,8 +17,16 @@ export default function Landing() {
             </div>
             <span className="font-bold text-xl text-primary">Careera</span>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 ml-10">
+            <Link href="/" className="text-sm font-semibold text-foreground hover:text-primary transition-colors">Home</Link>
+            <a href="#events" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">Events</a>
+          </nav>
+
+          <div className="flex items-center gap-3 ml-auto">
             <Link href="/login">
+
               <Button variant="ghost" className="font-semibold text-foreground">Log in</Button>
             </Link>
             <Link href="/signup">
@@ -152,6 +162,30 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Featured Events Section */}
+        <section id="events" className="py-24 bg-background overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight mb-4">
+                  Upcoming <span className="text-primary italic">Events</span>
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-2xl">
+                  Explore top-tier competitions and workshops hosted by colleges nationwide. 
+                  Your next big breakthrough is just one event away.
+                </p>
+              </div>
+              <Link href="/signup">
+                <Button variant="outline" className="rounded-xl border-2 font-semibold hover:bg-primary hover:text-white hover:border-primary transition-all">
+                  View All Events <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+
+            <FeaturedEventsList />
+          </div>
+        </section>
+
         {/* Features */}
         <section className="py-20 bg-white border-t border-border/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -215,6 +249,92 @@ export default function Landing() {
         </div>
         <p className="text-muted-foreground text-sm">&copy; {new Date().getFullYear()} Careera Platform. All rights reserved.</p>
       </footer>
+    </div>
+  );
+}
+
+function FeaturedEventsList() {
+  const { data: events, isLoading } = useGetPublicEvents();
+
+  if (isLoading) {
+    return (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-[400px] rounded-2xl bg-muted/50 animate-pulse border border-border/50" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-border/60">
+        <Calendar className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+        <h3 className="text-xl font-bold text-foreground">No upcoming events found</h3>
+        <p className="text-muted-foreground mt-2">Check back later for new opportunities.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {events.map((event, i) => (
+        <motion.div
+          key={event.id}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1, duration: 0.5 }}
+          viewport={{ once: true }}
+          className="group"
+        >
+          <div className="bg-white rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
+            {/* Event Poster / Thumbnail */}
+            <div className="relative aspect-[16/10] bg-muted overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute top-4 right-4 z-20">
+                <div className="bg-white/95 backdrop-blur-sm shadow-lg px-3 py-1.5 rounded-xl text-xs font-bold text-primary uppercase tracking-wider border border-white/20">
+                  {event.tags?.[0] || 'College Event'}
+                </div>
+              </div>
+              <img 
+                src={(event as any).posterUrl || `https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80`} 
+                alt={event.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute bottom-4 left-4 right-4 z-20 text-white translate-y-1 group-hover:translate-y-0 transition-transform">
+                <div className="text-sm font-medium flex items-center gap-1.5 opacity-90">
+                  <MapPin className="w-3.5 h-3.5 text-secondary" /> {event.collegeName}
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 flex flex-col flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-xs font-bold text-secondary uppercase tracking-widest">
+                  {format(new Date(event.eventDate), 'MMM dd, yyyy')}
+                </div>
+                <div className="text-sm font-bold text-muted-foreground">
+                  {event.fees === 0 ? "FREE" : `₹${event.fees}`}
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-1 group-hover:text-primary transition-colors">
+                {event.name}
+              </h3>
+              <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
+                {event.description}
+              </p>
+
+              <Link href={`/login?redirect=/events/${event.id}`}>
+                <Button className="w-full rounded-xl font-bold shadow-md shadow-primary/10 transition-all hover:bg-secondary group-hover:scale-[1.02]">
+                  Join Competition
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 }

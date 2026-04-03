@@ -944,6 +944,81 @@ export const useCreateEvent = <
 };
 
 /**
+ * @summary Get public events for landing page (no login required)
+ */
+export const getGetPublicEventsUrl = () => {
+  return `/api/events/public`;
+};
+
+export const getPublicEvents = async (
+  options?: RequestInit,
+): Promise<Event[]> => {
+  return customFetch<Event[]>(getGetPublicEventsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPublicEventsQueryKey = () => {
+  return [`/api/events/public`] as const;
+};
+
+export const getGetPublicEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicEvents>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPublicEventsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicEvents>>> = ({
+    signal,
+  }) => getPublicEvents({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicEvents>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPublicEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicEvents>>
+>;
+export type GetPublicEventsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get public events for landing page (no login required)
+ */
+
+export function useGetPublicEvents<
+  TData = Awaited<ReturnType<typeof getPublicEvents>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPublicEventsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Get event by ID
  */
 export const getGetEventUrl = (id: number) => {
@@ -1531,6 +1606,178 @@ export const useCreateAnnouncement = <
   TContext
 > => {
   return useMutation(getCreateAnnouncementMutationOptions(options));
+};
+
+/**
+ * @summary Update announcement (organizer only)
+ */
+export const getUpdateAnnouncementUrl = (id: number) => {
+  return `/api/organizers/announcements/${id}`;
+};
+
+export const updateAnnouncement = async (
+  id: number,
+  createAnnouncementRequest: CreateAnnouncementRequest,
+  options?: RequestInit,
+): Promise<Announcement> => {
+  return customFetch<Announcement>(getUpdateAnnouncementUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createAnnouncementRequest),
+  });
+};
+
+export const getUpdateAnnouncementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAnnouncement>>,
+    TError,
+    { id: number; data: BodyType<CreateAnnouncementRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateAnnouncement>>,
+  TError,
+  { id: number; data: BodyType<CreateAnnouncementRequest> },
+  TContext
+> => {
+  const mutationKey = ["updateAnnouncement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateAnnouncement>>,
+    { id: number; data: BodyType<CreateAnnouncementRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateAnnouncement(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateAnnouncementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateAnnouncement>>
+>;
+export type UpdateAnnouncementMutationBody =
+  BodyType<CreateAnnouncementRequest>;
+export type UpdateAnnouncementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update announcement (organizer only)
+ */
+export const useUpdateAnnouncement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAnnouncement>>,
+    TError,
+    { id: number; data: BodyType<CreateAnnouncementRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateAnnouncement>>,
+  TError,
+  { id: number; data: BodyType<CreateAnnouncementRequest> },
+  TContext
+> => {
+  return useMutation(getUpdateAnnouncementMutationOptions(options));
+};
+
+/**
+ * @summary Delete announcement (organizer only)
+ */
+export const getDeleteAnnouncementUrl = (id: number) => {
+  return `/api/organizers/announcements/${id}`;
+};
+
+export const deleteAnnouncement = async (
+  id: number,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getDeleteAnnouncementUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteAnnouncementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAnnouncement>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteAnnouncement>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteAnnouncement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteAnnouncement>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteAnnouncement(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteAnnouncementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteAnnouncement>>
+>;
+
+export type DeleteAnnouncementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete announcement (organizer only)
+ */
+export const useDeleteAnnouncement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAnnouncement>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteAnnouncement>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteAnnouncementMutationOptions(options));
 };
 
 /**

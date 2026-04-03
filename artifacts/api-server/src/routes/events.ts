@@ -37,6 +37,23 @@ async function formatEvent(event: any, userId?: number) {
   };
 }
 
+// GET /api/events/public (no login required)
+router.get("/public", async (req, res) => {
+  try {
+    const allEvents = await db.select().from(eventsTable)
+      .where(eq(eventsTable.status, "upcoming"))
+      .orderBy(desc(eventsTable.eventDate))
+      .limit(6);
+
+    req.log.info({ count: allEvents.length }, "Fetched public events");
+    const formatted = await Promise.all(allEvents.map(e => formatEvent(e)));
+    res.json(formatted);
+  } catch (err) {
+    req.log.error({ err }, "Get public events error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // GET /api/events
 router.get("/", requireAuth, async (req, res) => {
   try {

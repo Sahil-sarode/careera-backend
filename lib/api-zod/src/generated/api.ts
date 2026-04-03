@@ -198,6 +198,30 @@ export const CreateEventBody = zod.object({
 });
 
 /**
+ * @summary Get public events for landing page (no login required)
+ */
+export const GetPublicEventsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  description: zod.string(),
+  organizerName: zod.string(),
+  organizationName: zod.string().optional(),
+  collegeName: zod.string(),
+  location: zod.string(),
+  fees: zod.number().optional(),
+  registrationStartDate: zod.coerce.date().optional(),
+  registrationDeadline: zod.coerce.date(),
+  eventDate: zod.coerce.date(),
+  tags: zod.array(zod.string()).optional(),
+  status: zod.enum(["upcoming", "deadline_soon", "closed", "cancelled"]),
+  isRegistered: zod.boolean().optional(),
+  registrationCount: zod.number().optional(),
+  organizerId: zod.number().optional(),
+  createdAt: zod.coerce.date().optional(),
+});
+export const GetPublicEventsResponse = zod.array(GetPublicEventsResponseItem);
+
+/**
  * @summary Get event by ID
  */
 export const GetEventParams = zod.object({
@@ -333,6 +357,38 @@ export const CreateAnnouncementBody = zod.object({
   title: zod.string(),
   message: zod.string(),
   targetRole: zod.enum(["all", "user", "organizer"]).optional(),
+});
+
+/**
+ * @summary Update announcement (organizer only)
+ */
+export const UpdateAnnouncementParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateAnnouncementBody = zod.object({
+  title: zod.string(),
+  message: zod.string(),
+  targetRole: zod.enum(["all", "user", "organizer"]).optional(),
+});
+
+export const UpdateAnnouncementResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  targetRole: zod.string().optional(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete announcement (organizer only)
+ */
+export const DeleteAnnouncementParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const DeleteAnnouncementResponse = zod.object({
+  message: zod.string(),
 });
 
 /**
