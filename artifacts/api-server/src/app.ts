@@ -47,6 +47,9 @@ app.use(session({
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   },
 }));
+app.get("/test", (req, res) => {
+  res.send("Test route working ✅");
+});
 
 app.use("/api", router);
 
