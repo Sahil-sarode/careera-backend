@@ -41,16 +41,14 @@ async function formatEvent(event: any, userId?: number) {
 router.get("/public", async (req, res) => {
   try {
     const allEvents = await db.select().from(eventsTable)
-      .where(eq(eventsTable.status, "upcoming"))
-      .orderBy(desc(eventsTable.eventDate))
+      .orderBy(desc(eventsTable.date))   // ✅ FIXED
       .limit(6);
 
-    req.log.info({ count: allEvents.length }, "Fetched public events");
     const formatted = await Promise.all(allEvents.map(e => formatEvent(e)));
     res.json(formatted);
   } catch (err) {
-    req.log.error({ err }, "Get public events error");
-    res.status(500).json({ error: "Internal server error" });
+    console.error("REAL ERROR 👉", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
