@@ -5,7 +5,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
-import { db } from "./lib/db"; 
+import { db } from "@workspace/db"; 
 
 const app: Express = express();
 
@@ -29,8 +29,12 @@ app.use(
   }),
 );
 
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? ["https://careerra.in", "https://www.careerra.in"]
+  : true;
+
 app.use(cors({
-  origin: true,
+  origin: allowedOrigins,
   credentials: true,
 }));
 
@@ -43,9 +47,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 }));
 app.get("/test", (req, res) => {
