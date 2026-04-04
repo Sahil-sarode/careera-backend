@@ -25,19 +25,20 @@ export const usersTable = pgTable("users", {
 
 export const eventsTable = pgTable("events", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+
+  title: text("title").notNull(),              // ✅ FIX
   description: text("description").notNull(),
-  organizerId: integer("organizer_id").notNull(),
-  organizerName: text("organizer_name").notNull(),
-  organizationName: text("organization_name"),
-  collegeName: text("college_name").notNull(),
-  location: text("location").notNull(),
-  fees: real("fees").default(0),
-  registrationStartDate: timestamp("registration_start_date"),
-  registrationDeadline: timestamp("registration_deadline").notNull(),
-  eventDate: timestamp("event_date").notNull(),
-  tags: json("tags").$type<string[]>().default([]),
-  status: text("status").notNull().default("upcoming"), // upcoming | deadline_soon | closed | cancelled
+
+  collegeId: integer("college_id"),            // adjust type if needed
+
+  date: timestamp("date").notNull(),           // ✅ FIX
+  time: text("time"),                          // optional (if exists)
+
+  venue: text("venue").notNull(),              // ✅ FIX
+  fee: real("fee").default(0),                 // ✅ FIX
+
+  deadline: timestamp("deadline").notNull(),   // ✅ FIX
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
