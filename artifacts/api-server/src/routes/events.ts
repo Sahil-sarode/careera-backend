@@ -48,14 +48,9 @@ async function formatEvent(event: any, userId?: number) {
 // GET /api/events/public (no login required)
 router.get("/public", async (req, res) => {
   try {
-    const allEvents = await db.select().from(eventsTable)
-      .orderBy(desc(eventsTable.date))   // ✅ FIXED
-      .limit(6);
-
-    const formatted = await Promise.all(allEvents.map(e => formatEvent(e)));
-    res.json(formatted);
-  } catch (err) {
-    console.error("REAL ERROR 👉", err);
+    res.json({ message: "NEW CODE RUNNING 🚀" });
+  } catch (err: any) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
