@@ -5,6 +5,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
+import { db } from "./lib/db"; 
 
 const app: Express = express();
 
@@ -49,6 +50,15 @@ app.use(session({
 }));
 app.get("/test", (req, res) => {
   res.send("Test route working ✅");
+});
+app.get("/db-check", async (req, res) => {
+  try {
+    const result = await db.execute(`SELECT * FROM events LIMIT 1`);
+    res.json(result);
+  } catch (err: any) {
+    console.error("DB ERROR 👉", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use("/api", router);
