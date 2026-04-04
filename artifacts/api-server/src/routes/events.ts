@@ -6,13 +6,21 @@ import { requireAuth, requireRole } from "../lib/auth.js";
 
 const router = Router();
 
-function computeStatus(event: { registrationDeadline: Date; eventDate: Date; status: string }): string {
+function computeStatus(event: any): string {
   const now = new Date();
+
   if (event.status === "cancelled") return "cancelled";
-  if (now > event.eventDate) return "closed";
-  const daysUntilDeadline = (event.registrationDeadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-  if (now > event.registrationDeadline) return "closed";
+
+  const eventDate = new Date(event.date);        // ✅ FIX
+  const deadline = new Date(event.deadline);     // ✅ FIX
+
+  if (now > eventDate) return "closed";
+  if (now > deadline) return "closed";
+
+  const daysUntilDeadline = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
   if (daysUntilDeadline <= 3) return "deadline_soon";
+
   return "upcoming";
 }
 
@@ -81,8 +89,7 @@ router.get("/", requireAuth, async (req, res) => {
       }
     }
 
-    const formatted = await Promise.all(filtered.map(e => formatEvent(e, userId)));
-    res.json(formatted);
+    res.json(allEvents);
   } catch (err) {
     req.log.error({ err }, "Get events error");
     res.status(500).json({ error: "Internal server error" });
